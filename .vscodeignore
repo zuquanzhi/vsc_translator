@@ -9,5 +9,4 @@ webpack.config.js
 **/*.map
 **/*.ts
 node_modules/**
-!images/icon.png
 !images/**

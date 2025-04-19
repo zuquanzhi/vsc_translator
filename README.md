@@ -1,4 +1,4 @@
-# VSCode 翻译插件
+# VSC Translator
 
 一个支持多种翻译服务的 VSCode 翻译插件，可以快速翻译选中的文本。
 
@@ -14,7 +14,7 @@
 
 ## 安装
 
-在 VSCode 扩展商店中搜索 "vsc-translator" 并安装。
+在 VSCode 扩展商店中搜索 "VSC Translator" 或 "vsc-translator" 并安装。
 
 ## 配置
 

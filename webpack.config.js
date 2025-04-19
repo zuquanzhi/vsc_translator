@@ -27,5 +27,11 @@ module.exports = {
         ]
       }
     ]
-  }
+  },
+  ignoreWarnings: [
+    {
+      module: /follow-redirects/,
+      message: /Can't resolve 'debug'/
+    }
+  ]
 };
