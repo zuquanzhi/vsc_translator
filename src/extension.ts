@@ -1,25 +1,48 @@
 import * as vscode from 'vscode';
 import axios from 'axios';
 import crypto from 'crypto';
-
-// 定义百度翻译 API 响应的类型
-interface BaiduTranslateResponse {
-    error_code?: string;
-    error_msg?: string;
-    from: string;
-    to: string;
-    trans_result: Array<{ src: string; dst: string }>;
-}
+import { createTranslator } from './translators';
+import { TranslatorConfig } from './interfaces/config';
+import { BaiduTranslateResponse } from './interfaces/responses';
 
 // 获取用户配置
-function getConfig() {
+function getConfig(): TranslatorConfig {
     const config = vscode.workspace.getConfiguration('translator');
-    return {
-        appId: config.get<string>('appId', ''), // 默认值为空字符串
-        apiKey: config.get<string>('apiKey', ''), // 默认值为空字符串
-        sourceLang: config.get<string>('sourceLanguage', 'en'), // 默认值为 'en'
-        targetLang: config.get<string>('targetLanguage', 'zh') // 默认值为 'zh'
+    const service = config.get<string>('service', 'baidu');
+
+    const baseConfig = {
+        sourceLang: config.get<string>('language.source', 'auto'),
+        targetLang: config.get<string>('language.target', 'zh')
     };
+
+    switch (service) {
+        case 'baidu':
+            return {
+                ...baseConfig,
+                type: 'baidu',
+                appId: config.get<string>('baidu.appId', ''),
+                apiKey: config.get<string>('baidu.key', '')
+            };
+        case 'youdao':
+            return {
+                ...baseConfig,
+                type: 'youdao',
+                appId: config.get<string>('youdao.appId', ''),
+                apiKey: config.get<string>('youdao.key', '')
+            };
+        case 'llm':
+            return {
+                ...baseConfig,
+                type: 'llm',
+                provider: config.get<string>('llm.provider', 'deepseek'),
+                apiKey: config.get<string>('llm.key', ''),
+                model: config.get<string>('llm.model', 'deepseek-chat'),
+                prompt: config.get<string>('llm.prompt', '将下面的文本翻译成{targetLang}：\n{text}'),
+                endpoint: config.get<string>('llm.endpoint', 'https://api.deepseek.com/v1/chat/completions')
+            };
+        default:
+            throw new Error(`不支持的翻译服务: ${service}`);
+    }
 }
 
 // 调用百度翻译 API
@@ -105,16 +128,16 @@ export function activate(context: vscode.ExtensionContext) {
             return;
         }
 
-        // 获取用户配置
-        const { appId, apiKey, sourceLang, targetLang } = getConfig();
-
-        if (!appId || !apiKey) {
-            vscode.window.showErrorMessage('Baidu Translate App ID or API Key is not set.');
-            return;
-        }
-
+        const config = getConfig();
         try {
-            const translatedText = await translateText(selectedText, sourceLang, targetLang, appId, apiKey);
+            const translator = createTranslator(config);
+
+            const translatedText = await translator.translate(selectedText, {
+                sourceLang: config.sourceLang,
+                targetLang: config.targetLang,
+                prompt: 'llm' === config.type ? config.prompt : undefined
+            });
+
             showTranslationResult(editor, selection, translatedText);
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'Unknown error';

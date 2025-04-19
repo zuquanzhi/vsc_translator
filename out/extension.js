@@ -39,15 +39,25 @@ exports.deactivate = exports.activate = void 0;
 const vscode = __importStar(require("vscode"));
 const axios_1 = __importDefault(require("axios"));
 const crypto_1 = __importDefault(require("crypto"));
+const translators_1 = require("./translators");
 // 获取用户配置
 function getConfig() {
     const config = vscode.workspace.getConfiguration('translator');
-    return {
-        appId: config.get('appId', ''),
-        apiKey: config.get('apiKey', ''),
-        sourceLang: config.get('sourceLanguage', 'en'),
-        targetLang: config.get('targetLanguage', 'zh') // 默认值为 'zh'
+    const service = config.get('service', 'baidu');
+    const baseConfig = {
+        sourceLang: config.get('language.source', 'auto'),
+        targetLang: config.get('language.target', 'zh')
     };
+    switch (service) {
+        case 'baidu':
+            return Object.assign(Object.assign({}, baseConfig), { type: 'baidu', appId: config.get('baidu.appId', ''), apiKey: config.get('baidu.key', '') });
+        case 'youdao':
+            return Object.assign(Object.assign({}, baseConfig), { type: 'youdao', appId: config.get('youdao.appId', ''), apiKey: config.get('youdao.key', '') });
+        case 'llm':
+            return Object.assign(Object.assign({}, baseConfig), { type: 'llm', provider: config.get('llm.provider', 'deepseek'), apiKey: config.get('llm.key', ''), model: config.get('llm.model', 'deepseek-chat'), prompt: config.get('llm.prompt', '将下面的文本翻译成{targetLang}：\n{text}'), endpoint: config.get('llm.endpoint', 'https://api.deepseek.com/v1/chat/completions') });
+        default:
+            throw new Error(`不支持的翻译服务: ${service}`);
+    }
 }
 // 调用百度翻译 API
 function translateText(text, sourceLang, targetLang, appId, apiKey) {
@@ -120,14 +130,14 @@ function activate(context) {
             vscode.window.showErrorMessage('No text selected.');
             return;
         }
-        // 获取用户配置
-        const { appId, apiKey, sourceLang, targetLang } = getConfig();
-        if (!appId || !apiKey) {
-            vscode.window.showErrorMessage('Baidu Translate App ID or API Key is not set.');
-            return;
-        }
+        const config = getConfig();
         try {
-            const translatedText = yield translateText(selectedText, sourceLang, targetLang, appId, apiKey);
+            const translator = (0, translators_1.createTranslator)(config);
+            const translatedText = yield translator.translate(selectedText, {
+                sourceLang: config.sourceLang,
+                targetLang: config.targetLang,
+                prompt: 'llm' === config.type ? config.prompt : undefined
+            });
             showTranslationResult(editor, selection, translatedText);
         }
         catch (error) {

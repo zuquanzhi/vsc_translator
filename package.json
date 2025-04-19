@@ -11,28 +11,87 @@
     "main": "./out/extension.js",
     "contributes": {
       "configuration": {
-        "type": "object",
-        "title": "Translator Plugin Settings",
+        "title": "Translator",
         "properties": {
-          "translator.appId": {
+          "translator.service": {
             "type": "string",
-            "default": "",
-            "description": "Your Baidu Translate App ID."
+            "default": "baidu",
+            "enum": ["baidu", "youdao", "llm"],
+            "enumDescriptions": [
+              "使用百度翻译服务",
+              "使用有道翻译服务",
+              "使用大语言模型翻译"
+            ],
+            "description": "选择要使用的翻译服务"
           },
-          "translator.apiKey": {
-            "type": "string",
-            "default": "",
-            "description": "Your Baidu Translate API Key."
+          "translator.language": {
+            "type": "object",
+            "properties": {
+              "source": {
+                "type": "string",
+                "default": "auto",
+                "description": "源语言（auto表示自动检测）"
+              },
+              "target": {
+                "type": "string",
+                "default": "zh",
+                "description": "目标语言"
+              }
+            }
           },
-          "translator.sourceLanguage": {
-            "type": "string",
-            "default": "en",
-            "description": "Source language code (e.g., 'en' for English)."
+          "translator.baidu": {
+            "type": "object",
+            "description": "百度翻译配置",
+            "properties": {
+              "appId": {
+                "type": "string",
+                "description": "百度翻译服务的App ID"
+              },
+              "key": {
+                "type": "string",
+                "description": "百度翻译服务的密钥"
+              }
+            }
           },
-          "translator.targetLanguage": {
-            "type": "string",
-            "default": "zh",
-            "description": "Target language code (e.g., 'zh' for Chinese)."
+          "translator.youdao": {
+            "type": "object",
+            "description": "有道翻译配置",
+            "properties": {
+              "appId": {
+                "type": "string",
+                "description": "有道智云应用ID"
+              },
+              "key": {
+                "type": "string",
+                "description": "有道智云应用密钥"
+              }
+            }
+          },
+          "translator.llm": {
+            "type": "object",
+            "description": "大语言模型配置",
+            "properties": {
+              "provider": {
+                "type": "string",
+                "default": "deepseek",
+                "enum": ["openai", "deepseek", "qwen"],
+                "description": "选择LLM服务提供商"
+              },
+              "key": {
+                "type": "string",
+                "description": "API密钥"
+              },
+              "model": {
+                "type": "string",
+                "default": "deepseek-chat",
+                "description": "使用的模型名称"
+              },
+              "prompt": {
+                "type": "string",
+                "default": "将下面的文本翻译成{targetLang}：\n{text}",
+                "description": "翻译提示词模板"
+              }
+            }
           }
         }
       },
