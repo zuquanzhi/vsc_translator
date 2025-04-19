@@ -59,7 +59,9 @@ async function translateText(text: string, sourceLang: string, targetLang: strin
 // 创建装饰类型
 const translationDecorationType = vscode.window.createTextEditorDecorationType({
     after: {
-        margin: '0 0 0 2em',
+        margin: '0 0 0 1.2em',
+        backgroundColor: '#2d2d2d',
+        border: '1px solid #3d3d3d',
         textDecoration: 'none'
     }
 });
@@ -73,9 +75,12 @@ function showTranslationResult(editor: vscode.TextEditor, selection: vscode.Sele
         range: selection,
         renderOptions: {
             after: {
-                contentText: `➜ ${translatedText}`,
-                color: '#888888',
-                fontStyle: 'normal'
+                contentText: `  ${translatedText}  `,
+                color: '#ffffff',
+                fontStyle: 'normal',
+                fontWeight: 'normal',
+                fontSize: '13px',
+                fontFamily: 'Arial, "Microsoft YaHei", sans-serif',
             }
         }
     };
