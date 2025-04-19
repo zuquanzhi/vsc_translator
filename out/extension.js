@@ -78,22 +78,32 @@ function translateText(text, sourceLang, targetLang, appId, apiKey) {
         throw new Error('Translation failed: No result found.');
     });
 }
-// 使用 Webview 显示翻译结果
-function showTranslationInWebview(translatedText) {
-    const panel = vscode.window.createWebviewPanel('translatorView', 'Translation Result', vscode.ViewColumn.Two, {});
-    panel.webview.html = `
-        <html>
-        <body style="font-family: Arial, sans-serif; padding: 20px;">
-            <h1>Translation Result</h1>
-            <p><strong>Translated Text:</strong> ${translatedText}</p>
-        </body>
-        </html>
-    `;
+// 创建装饰类型
+const translationDecorationType = vscode.window.createTextEditorDecorationType({
+    after: {
+        margin: '0 0 0 2em',
+        textDecoration: 'none'
+    }
+});
+// 显示翻译结果
+function showTranslationResult(editor, selection, translatedText) {
+    // 清除之前的装饰
+    editor.setDecorations(translationDecorationType, []);
+    const decorationOptions = {
+        range: selection,
+        renderOptions: {
+            after: {
+                contentText: `➜ ${translatedText}`,
+                color: '#888888',
+                fontStyle: 'normal'
+            }
+        }
+    };
+    editor.setDecorations(translationDecorationType, [decorationOptions]);
 }
 // 插件激活时的入口函数
 function activate(context) {
     let disposable = vscode.commands.registerCommand('translator.translate', () => __awaiter(this, void 0, void 0, function* () {
-        // 获取当前选中的文本
         const editor = vscode.window.activeTextEditor;
         if (!editor) {
             vscode.window.showErrorMessage('No active text editor found.');
@@ -111,24 +121,31 @@ function activate(context) {
             vscode.window.showErrorMessage('Baidu Translate App ID or API Key is not set.');
             return;
         }
-        if (!sourceLang || !targetLang) {
-            vscode.window.showErrorMessage('Source language or target language is not set.');
-            return;
-        }
         try {
-            // 调用翻译 API
             const translatedText = yield translateText(selectedText, sourceLang, targetLang, appId, apiKey);
-            // 显示翻译结果
-            showTranslationInWebview(translatedText);
+            showTranslationResult(editor, selection, translatedText);
         }
         catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'Unknown error';
             vscode.window.showErrorMessage(`Translation failed: ${errorMessage}`);
         }
     }));
+    // 注册清理装饰的事件
+    vscode.window.onDidChangeTextEditorSelection(() => {
+        const editor = vscode.window.activeTextEditor;
+        if (editor) {
+            editor.setDecorations(translationDecorationType, []);
+        }
+    });
     context.subscriptions.push(disposable);
 }
 exports.activate = activate;
 // 插件停用时的清理逻辑
-function deactivate() { }
+function deactivate() {
+    // 清除所有装饰
+    const editor = vscode.window.activeTextEditor;
+    if (editor) {
+        editor.setDecorations(translationDecorationType, []);
+    }
+}
 exports.deactivate = deactivate;

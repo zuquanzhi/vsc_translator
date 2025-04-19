@@ -1,0 +1,25 @@
+# 依赖目录
+node_modules/
+
+# 编译输出
+out/
+dist/
+
+# VSCode 配置
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# 环境变量
+.env
+
+# 日志文件
+*.log
+
+# MacOS 系统文件
+.DS_Store
+
+# Windows 系统文件
+Thumbs.db
