@@ -1,0 +1,66 @@
+{
+    "name": "translator-plugin",
+    "displayName": "Translator Plugin",
+    "description": "A VSCode plugin to translate selected text using Baidu Translate API.",
+    "version": "1.0.0",
+    "engines": {
+      "vscode": "^1.70.0"
+    },
+    "categories": ["Other"],
+    "activationEvents": ["onCommand:translator.translate"],
+    "main": "./out/extension.js",
+    "contributes": {
+      "configuration": {
+        "type": "object",
+        "title": "Translator Plugin Settings",
+        "properties": {
+          "translator.appId": {
+            "type": "string",
+            "default": "",
+            "description": "Your Baidu Translate App ID."
+          },
+          "translator.apiKey": {
+            "type": "string",
+            "default": "",
+            "description": "Your Baidu Translate API Key."
+          },
+          "translator.sourceLanguage": {
+            "type": "string",
+            "default": "en",
+            "description": "Source language code (e.g., 'en' for English)."
+          },
+          "translator.targetLanguage": {
+            "type": "string",
+            "default": "zh",
+            "description": "Target language code (e.g., 'zh' for Chinese)."
+          }
+        }
+      },
+      "commands": [
+        {
+          "command": "translator.translate",
+          "title": "Translate Selected Text"
+        }
+      ],
+      "keybindings": [
+        {
+          "command": "translator.translate",
+          "key": "ctrl+alt+t",
+          "when": "editorTextFocus"
+        }
+      ]
+    },
+    "scripts": {
+      "compile": "npx tsc -p ./",
+      "watch": "npx tsc -watch -p ./",
+      "postinstall": "npm run compile"
+    },
+    "devDependencies": {
+      "@types/node": "^18.0.0",
+      "@types/vscode": "^1.70.0",
+      "typescript": "^4.9.5"
+    },
+    "dependencies": {
+      "axios": "^1.3.4"
+    }
+  }
