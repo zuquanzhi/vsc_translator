@@ -2,7 +2,7 @@
     "name": "vsc-translator",
     "displayName": "Translator Plugin",
     "description": "A VSCode plugin to translate selected text using Baidu Translate API.",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "publisher": "zuquanzhi",
     "repository": {
         "type": "git",
@@ -19,6 +19,7 @@
         "onCommand:translator.translate"
     ],
     "main": "./dist/extension.js",
+    "icon": "images/icon.png",
     "contributes": {
         "configuration": {
             "title": "Translator",
