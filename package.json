@@ -2,7 +2,7 @@
     "name": "vsc-translator",
     "displayName": "VSC Translator",
     "description": "A VSCode plugin to translate selected text using Baidu Translate API.",
-    "version": "1.0.3",
+    "version": "1.0.6",
     "publisher": "zuquanzhi",
     "repository": {
         "type": "git",
@@ -123,7 +123,7 @@
         "keybindings": [
             {
                 "command": "translator.translate",
-                "key": "ctrl+alt+t",
+                "key": "ctrl+t",
                 "when": "editorTextFocus"
             }
         ]
